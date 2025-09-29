@@ -22,7 +22,7 @@ load_dotenv()
 log = logging.getLogger(__name__)
 
 SENT_EMAIL_LOG = './data/sent_emails.json'
-NEXT_HOURS = 24 * 7 * 4
+NEXT_HOURS = 24
 
 def check_config() -> bool:
     required_vars = [
