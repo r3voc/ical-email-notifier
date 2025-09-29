@@ -1,0 +1,14 @@
+name: ical-email-notifier
+services:
+    ical-email-notifier:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        container_name: ical-email-notifier
+        environment:
+        - TZ=Europe/Berlin
+        env_file:
+          - .env
+        volumes:
+          - ./data:/app/data

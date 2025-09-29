@@ -1,0 +1,22 @@
+{# Default E-Mail template #}
+{% extends "base_email.jinja" %}
+
+{% block subject %}
+    "Upcoming event: {{ event.name }} on {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}"
+{% endblock %}
+
+{% block body %}
+    <h1>Upcoming Meeting</h1>
+    <p>Dear User,</p>
+    <p>We would like to inform you about an upcoming meeting:</p>
+    <div class="meeting">
+        <ul>
+            <li><strong>Event Name:</strong> {{ event.name }}</li>
+            <li><strong>Date & Time:</strong> {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}</li>
+            <li><strong>Location:</strong> {{ event.location }}</li>
+        </ul>
+        <p class="description">{{ event.description }}</p>
+    </div>
+    <p>Please mark your calendar and let us know if you have any questions.</p>
+    <p>Best regards</p>
+{% endblock %}
