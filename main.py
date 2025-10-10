@@ -51,6 +51,14 @@ CONFIG = {
     'EMAIL_TO': environ.get('EMAIL_TO')
 }
 
+def fix_datetime(dt) -> datetime.datetime:
+    if isinstance(dt, datetime.datetime):
+        return dt
+    elif isinstance(dt, datetime.date):
+        return datetime.datetime.combine(dt, datetime.time.min)
+    else:
+        raise ValueError("Invalid date/time format")
+
 
 def get_calendar_events() -> list:
     # fetch from URL
@@ -64,19 +72,27 @@ def get_calendar_events() -> list:
     events = []
 
     for component in recurring_events:
-        if component.name == "VEVENT":
-            # if the event is in the past, skip it
-            start_unix = component.get('dtstart').dt.timestamp()
-            if start_unix < datetime.datetime.now().timestamp():
-                continue
+        try:
+            if component.name == "VEVENT":
+                # if the event is in the past, skip it
+                dtstart = component.get('dtstart')
 
-            events.append({
-                'summary': str(component.get('summary')),
-                'dtstart': component.get('dtstart').dt,
-                'dtend': component.get('dtend').dt,
-                'description': str(component.get('description', '')),
-                'location': str(component.get('location', ''))
-            })
+                dtstart_dt = fix_datetime(dtstart.dt)
+
+                start_unix = dtstart_dt.timestamp()
+                if start_unix < datetime.datetime.now().timestamp():
+                    continue
+
+                events.append({
+                    'summary': str(component.get('summary')),
+                    'dtstart': component.get('dtstart').dt,
+                    'dtend': component.get('dtend').dt,
+                    'description': str(component.get('description', '')),
+                    'location': str(component.get('location', ''))
+                })
+        except Exception as e:
+            log.error(f"Error processing event: {e}")
+            continue
     return events
 
 
@@ -106,9 +122,13 @@ def run_task() -> None:
     upcoming_events = []
 
     for event in events:
-        start_unix = event['dtstart'].timestamp()
-        if start_unix < (datetime.datetime.now() + datetime.timedelta(hours=NEXT_HOURS)).timestamp():
-            upcoming_events.append(event)
+        try:
+            start_unix = fix_datetime(event['dtstart']).timestamp()
+            if start_unix < (datetime.datetime.now() + datetime.timedelta(hours=NEXT_HOURS)).timestamp():
+                upcoming_events.append(event)
+        except Exception as e:
+            log.error(f"Error processing event date: {e}")
+            continue
 
     if not upcoming_events:
         log.info(f"No events within the next {NEXT_HOURS} hours.")
