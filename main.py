@@ -145,7 +145,10 @@ def run_task() -> None:
 
         sent_email_timestamp = datetime.datetime.fromisoformat(sent_emails[event['summary']])
 
-        if sent_email_timestamp.timestamp() < (datetime.datetime.now() + datetime.timedelta(hours=12)).timestamp():
+        event_date = sent_email_timestamp.date()
+        now_date = datetime.datetime.now().date()
+
+        if now_date > event_date:
             log.info("Old enough event, probably repeat")
             new_events.append(event)
             continue

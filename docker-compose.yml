@@ -7,7 +7,7 @@ services:
         restart: always
         container_name: ical-email-notifier
         environment:
-        - TZ=Europe/Berlin
+        - TZ=Europe/Vienna
         env_file:
           - .env
         volumes:
