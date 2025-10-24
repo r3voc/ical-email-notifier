@@ -104,6 +104,8 @@ def run_task() -> None:
         log.info("No upcoming events found.")
         return
 
+    sent_emails = {}
+
     try:
         with open(SENT_EMAIL_LOG, 'r') as f:
             sent_emails = json.load(f)
@@ -118,7 +120,6 @@ def run_task() -> None:
                 json.dump(sent_emails, f)
 
     # Filter by events that are within the next 24 hours
-
     upcoming_events = []
 
     for event in events:
@@ -134,7 +135,18 @@ def run_task() -> None:
         log.info(f"No events within the next {NEXT_HOURS} hours.")
         return
 
-    new_events = [event for event in upcoming_events if event['summary'] not in sent_emails]
+    # new_events = [event for event in upcoming_events if event['summary'] not in sent_emails]
+    new_events = []
+
+    for event in upcoming_events:
+        if event['summary'] not in sent_emails:
+            new_events.append(event)
+
+        sent_email_timestamp = datetime.datetime.fromisoformat(sent_emails[event['summary']])
+
+        if sent_email_timestamp.timestamp() < (datetime.datetime.now() + datetime.timedelta(hours=12)).timestamp():
+            log.info("Old enough event, probably repeat")
+            new_events.append(event)
 
     if not new_events:
         log.info("No new events to notify.")
@@ -145,6 +157,7 @@ def run_task() -> None:
             sent_emails[event['summary']] = event['dtstart'].isoformat()
 
     with open(SENT_EMAIL_LOG, 'w') as f:
+        log.info('Writing json back to file')
         json.dump(sent_emails, f)
 
 def send_mail_for_event(ical_event):
