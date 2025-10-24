@@ -141,12 +141,14 @@ def run_task() -> None:
     for event in upcoming_events:
         if event['summary'] not in sent_emails:
             new_events.append(event)
+            continue
 
         sent_email_timestamp = datetime.datetime.fromisoformat(sent_emails[event['summary']])
 
         if sent_email_timestamp.timestamp() < (datetime.datetime.now() + datetime.timedelta(hours=12)).timestamp():
             log.info("Old enough event, probably repeat")
             new_events.append(event)
+            continue
 
     if not new_events:
         log.info("No new events to notify.")
