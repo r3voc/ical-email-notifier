@@ -153,6 +153,7 @@ def send_mail_for_event(ical_event):
     event['name'] = event['summary']
     event['start_time'] = event['dtstart'] if isinstance(event['dtstart'], datetime.datetime) else datetime.datetime.combine(event['dtstart'], datetime.time.min)
     event['end_time'] = event['dtend'] if isinstance(event['dtend'], datetime.datetime) else datetime.datetime.combine(event['dtend'], datetime.time.min)
+    event['timezone'] = event['dtstart'].tzinfo if isinstance(event['dtstart'], datetime.datetime) else datetime.datetime.combine(event['dtstart'], datetime.time.min).tzinfo
 
     email_subject = f"Upcoming Event: {event['summary']} on {event['dtstart'].strftime('%Y-%m-%d %H:%M')}"
 
@@ -180,7 +181,7 @@ def send_mail_for_event(ical_event):
     cal_part['Content-Disposition'] = 'attachment; filename="event.ics"'
     msg.attach(cal_part)
 
-    log.info(f"Sending email for event: {event['summary']}")
+    log.info(f"Sending email for event: {event['summary']} to {CONFIG['EMAIL_TO']}")
 
     try:
         with smtplib.SMTP(CONFIG['SMTP_HOST'], CONFIG['SMTP_PORT']) as server:

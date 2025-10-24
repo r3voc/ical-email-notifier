@@ -12,10 +12,12 @@
     <div class="meeting">
         <ul>
             <li><strong>Event Name:</strong> {{ event.name }}</li>
-            <li><strong>Date & Time:</strong> {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}</li>
+            <li><strong>Date & Time:</strong> {{ event.start_time.strftime('%Y-%m-%d %H:%M') }} ({{ event.timezone }})</li>
             <li><strong>Location:</strong> {{ event.location }}</li>
         </ul>
-        <p class="description">{{ event.description }}</p>
+        {% if event.description %}
+            <p class="description">{{ event.description }}</p>
+        {% endif %}
     </div>
     <p>Please mark your calendar and let us know if you have any questions.</p>
     <p>Best regards</p>
